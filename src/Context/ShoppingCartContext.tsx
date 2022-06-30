@@ -1,4 +1,5 @@
 import { createContext, ReactNode, useContext, useState } from 'react';
+import ShoppingCart from '../Components/ShoppingCart';
 
 //as it is typescript; have to declare the type; type of children is ReactNode
 type ShoppingCartContextProps = {
@@ -13,10 +14,14 @@ type CartItem = {
 
 //providing type to context
 type ShoppingCartContext = {
+  openCart: () => void;
+  closeCart: () => void;
   getItemQuantity: (id: number) => number;
   increaseCartQuantity: (id: number) => void;
   decreaseCartQuantity: (id: number) => void;
   removeCartItem: (id: number) => void;
+  cartQuantity: number;
+  cartItems: CartItem[];
 };
 
 //creating shopping cart context; code after 'as' means the context that we created should be of the same type
@@ -29,10 +34,11 @@ export function useShoppingCartContext() {
 
 //funtion that returns the context.provider wrapper --- children is the value that gets wrapped by provider
 export function ShoppingCartProvider({ children }: ShoppingCartContextProps) {
-  const [cartItem, setCartItems] = useState<CartItem[]>([]);
+  const [isOpen, setIsOpen] = useState(false);
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
 
   function getItemQuantity(id: number) {
-    return cartItem.find((item) => item.id === id)?.quantity || 0;
+    return cartItems.find((item) => item.id === id)?.quantity || 0;
   }
 
   function increaseCartQuantity(id: number) {
@@ -75,6 +81,13 @@ export function ShoppingCartProvider({ children }: ShoppingCartContextProps) {
     });
   }
 
+  const cartQuantity = cartItems.reduce((quantities, items) => {
+    return items.quantity + quantities;
+  }, 0);
+
+  const openCart = () => setIsOpen(true);
+  const closeCart = () => setIsOpen(false);
+
   return (
     <ShoppingCartContext.Provider
       value={{
@@ -82,9 +95,14 @@ export function ShoppingCartProvider({ children }: ShoppingCartContextProps) {
         increaseCartQuantity,
         decreaseCartQuantity,
         removeCartItem,
+        cartQuantity,
+        cartItems,
+        openCart,
+        closeCart,
       }}
     >
       {children}
+      <ShoppingCart isOpen={isOpen} />
     </ShoppingCartContext.Provider>
   );
 }
