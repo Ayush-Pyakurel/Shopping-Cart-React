@@ -1,5 +1,5 @@
 const CURRENCY_FORMATTER = new Intl.NumberFormat(undefined, {
-  currency: 'GBP',
+  currency: 'USD',
   style: 'currency',
 });
 
